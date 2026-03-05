@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Gallery</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f4f4f4;
+    }
+    h2 {
+        margin-bottom: 15px;
+    }
+
+    /* Horizontal scroll strip at the top */
+    .scroll-container {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+        scroll-behavior: smooth;
+        margin-bottom: 20px;
+    }
+    .scroll-container img {
+        height: 150px;
+        border-radius: 6px;
+        flex-shrink: 0;
+        transition: transform 0.3s;
+        cursor: pointer;
+    }
+    .scroll-container img:hover {
+        transform: scale(1.05);
+    }
+
+    /* Grid layout below */
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+    }
+    .grid-container img {
+        width: 100%;
+        border-radius: 8px;
+        object-fit: cover;
+        height: 180px;
+        transition: transform 0.3s;
+        cursor: pointer;
+    }
+    .grid-container img:hover {
+        transform: scale(1.03);
+    }
+</style>
+</head>
+<body>
+<h2>Image Gallery</h2>
+
+<h3>Horizontal Scroll</h3>
+<div class="scroll-container" id="scrollStrip"></div>
+
+<h3>Grid View</h3>
+<div class="grid-container" id="imageGrid"></div>
+
+<script>
+    // ✏️ CHANGE THIS to your folder path and list your image filenames
+    const folderPath = "./images/";  // <-- put your folder path here
+    const imageFiles = [
+        "photo1.jpg",
+        "photo2.jpg",
+        "photo3.png",
+        // add more filenames here...
+    ];
+
+    const scrollStrip = document.getElementById("scrollStrip");
+    const imageGrid = document.getElementById("imageGrid");
+
+    imageFiles.forEach(filename => {
+        const src = folderPath + filename;
+
+        const img1 = document.createElement("img");
+        img1.src = src;
+        img1.alt = filename;
+        scrollStrip.appendChild(img1);
+
+        const img2 = document.createElement("img");
+        img2.src = src;
+        img2.alt = filename;
+        imageGrid.appendChild(img2);
+    });
+</script>
+
+</body>
+</html>
