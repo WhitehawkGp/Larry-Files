@@ -11,11 +11,7 @@
         padding: 20px;
         background: #f4f4f4;
     }
-    h2 {
-        margin-bottom: 15px;
-    }
 
-    /* Horizontal scroll strip at the top */
     .scroll-container {
         display: flex;
         overflow-x: auto;
@@ -33,11 +29,8 @@
         transition: transform 0.3s;
         cursor: pointer;
     }
-    .scroll-container img:hover {
-        transform: scale(1.05);
-    }
+    .scroll-container img:hover { transform: scale(1.05); }
 
-    /* Grid layout below */
     .grid-container {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -51,13 +44,18 @@
         transition: transform 0.3s;
         cursor: pointer;
     }
-    .grid-container img:hover {
-        transform: scale(1.03);
+    .grid-container img:hover { transform: scale(1.03); }
+
+    #status {
+        color: #888;
+        font-style: italic;
+        margin-bottom: 10px;
     }
 </style>
 </head>
 <body>
 <h2>Image Gallery</h2>
+<p id="status">Loading images...</p>
 
 <h3>Horizontal Scroll</h3>
 <div class="scroll-container" id="scrollStrip"></div>
@@ -66,31 +64,51 @@
 <div class="grid-container" id="imageGrid"></div>
 
 <script>
-    // ✏️ CHANGE THIS to your folder path and list your image filenames
-    const folderPath = "./images/";  // <-- put your folder path here
-    const imageFiles = [
-        "photo1.jpg",
-        "photo2.jpg",
-        "photo3.png",
-        // add more filenames here...
-    ];
+    // ✏️ CHANGE THESE to match your GitHub info
+    const GITHUB_USER = "your-username";
+    const GITHUB_REPO = "your-repo-name";
+    const FOLDER_PATH = "images"; // folder inside your repo
+
+    const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FOLDER_PATH}`;
+    const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${FOLDER_PATH}/`;
 
     const scrollStrip = document.getElementById("scrollStrip");
     const imageGrid = document.getElementById("imageGrid");
+    const status = document.getElementById("status");
 
-    imageFiles.forEach(filename => {
-        const src = folderPath + filename;
+    const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
 
-        const img1 = document.createElement("img");
-        img1.src = src;
-        img1.alt = filename;
-        scrollStrip.appendChild(img1);
+    fetch(API_URL)
+        .then(res => res.json())
+        .then(files => {
+            const images = files.filter(file =>
+                imageExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+            );
 
-        const img2 = document.createElement("img");
-        img2.src = src;
-        img2.alt = filename;
-        imageGrid.appendChild(img2);
-    });
+            if (images.length === 0) {
+                status.textContent = "No images found in the folder.";
+                return;
+            }
+
+            status.textContent = `${images.length} image(s) loaded.`;
+
+            images.forEach(file => {
+                const src = RAW_BASE + file.name;
+
+                const img1 = document.createElement("img");
+                img1.src = src;
+                img1.alt = file.name;
+                scrollStrip.appendChild(img1);
+
+                const img2 = document.createElement("img");
+                img2.src = src;
+                img2.alt = file.name;
+                imageGrid.appendChild(img2);
+            });
+        })
+        .catch(() => {
+            status.textContent = "Failed to load images. Check your GitHub username, repo, and folder name.";
+        });
 </script>
 
 </body>
