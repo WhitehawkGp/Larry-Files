@@ -3,113 +3,405 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Gallery</title>
+<title>Larry Files</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
+    :root {
+        --bg: #0d0d0d;
+        --surface: #161616;
+        --border: #2a2a2a;
+        --accent: #e8ff47;
+        --text: #f0f0f0;
+        --muted: #555;
+        --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 20px;
-        background: #f4f4f4;
+        font-family: 'Syne', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        padding: 32px 28px;
     }
 
-    .scroll-container {
+    /* HEADER */
+    header {
         display: flex;
-        overflow-x: auto;
-        gap: 10px;
-        padding: 10px;
-        background: white;
-        border-radius: 8px;
-        scroll-behavior: smooth;
-        margin-bottom: 20px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 36px;
     }
-    .scroll-container img {
-        height: 150px;
-        border-radius: 6px;
-        flex-shrink: 0;
-        transition: transform 0.3s;
-        cursor: pointer;
-    }
-    .scroll-container img:hover { transform: scale(1.05); }
 
-    .grid-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 12px;
+    header h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -1px;
     }
-    .grid-container img {
-        width: 100%;
-        border-radius: 8px;
-        object-fit: cover;
-        height: 180px;
-        transition: transform 0.3s;
-        cursor: pointer;
+
+    header h1 span {
+        color: var(--accent);
     }
-    .grid-container img:hover { transform: scale(1.03); }
 
     #status {
-        color: #888;
-        font-style: italic;
-        margin-bottom: 10px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin-top: 4px;
+    }
+
+    /* VIEW TOGGLE */
+    .view-toggle {
+        display: flex;
+        gap: 6px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 5px;
+    }
+
+    .view-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 7px 10px;
+        border-radius: 7px;
+        color: var(--muted);
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.7rem;
+    }
+
+    .view-btn:hover { color: var(--text); background: var(--border); }
+
+    .view-btn.active {
+        background: var(--accent);
+        color: #000;
+        font-weight: 700;
+    }
+
+    .view-btn svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+    }
+
+    /* GALLERY WRAPPER */
+    #gallery-wrapper { position: relative; }
+
+    /* HORIZONTAL VIEW */
+    #gallery-wrapper.horizontal .scroll-strip {
+        display: flex;
+        overflow-x: auto;
+        gap: 14px;
+        padding-bottom: 12px;
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent) var(--surface);
+    }
+
+    #gallery-wrapper.horizontal .scroll-strip::-webkit-scrollbar {
+        height: 4px;
+    }
+    #gallery-wrapper.horizontal .scroll-strip::-webkit-scrollbar-track {
+        background: var(--surface);
+        border-radius: 4px;
+    }
+    #gallery-wrapper.horizontal .scroll-strip::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 4px;
+    }
+
+    #gallery-wrapper.horizontal .img-card {
+        flex-shrink: 0;
+        width: 280px;
+        height: 200px;
+    }
+
+    #gallery-wrapper.horizontal .grid-strip { display: none; }
+    #gallery-wrapper.horizontal .vertical-strip { display: none; }
+
+    /* GRID VIEW */
+    #gallery-wrapper.grid .grid-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 14px;
+    }
+
+    #gallery-wrapper.grid .grid-strip .img-card {
+        height: 200px;
+    }
+
+    #gallery-wrapper.grid .scroll-strip { display: none; }
+    #gallery-wrapper.grid .vertical-strip { display: none; }
+
+    /* VERTICAL VIEW */
+    #gallery-wrapper.vertical .vertical-strip {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    #gallery-wrapper.vertical .vertical-strip .img-card {
+        height: 320px;
+        width: 100%;
+    }
+
+    #gallery-wrapper.vertical .scroll-strip { display: none; }
+    #gallery-wrapper.vertical .grid-strip { display: none; }
+
+    /* IMAGE CARD */
+    .img-card {
+        border-radius: var(--radius);
+        overflow: hidden;
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .img-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent);
+        box-shadow: 0 8px 32px rgba(232, 255, 71, 0.12);
+    }
+
+    .img-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.4s;
+    }
+
+    .img-card:hover img { transform: scale(1.04); }
+
+    .img-label {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.75));
+        padding: 18px 10px 8px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.65rem;
+        color: rgba(255,255,255,0.6);
+        opacity: 0;
+        transition: opacity 0.2s;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .img-card:hover .img-label { opacity: 1; }
+
+    /* LIGHTBOX */
+    #lightbox {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.9);
+        z-index: 999;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(6px);
+    }
+
+    #lightbox.open { display: flex; }
+
+    #lightbox img {
+        max-width: 90vw;
+        max-height: 90vh;
+        border-radius: 10px;
+        box-shadow: 0 0 60px rgba(232,255,71,0.15);
+        animation: popIn 0.2s ease;
+    }
+
+    @keyframes popIn {
+        from { transform: scale(0.92); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    #lightbox-close {
+        position: fixed;
+        top: 20px;
+        right: 24px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-size: 1.4rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+
+    #lightbox-close:hover { background: var(--accent); color: #000; }
+
+    /* LOADING SKELETON */
+    .skeleton {
+        background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: var(--radius);
+        height: 200px;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* FADE IN */
+    .img-card { animation: fadeUp 0.4s ease both; }
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
 </head>
 <body>
-<h2>Image Gallery</h2>
-<p id="status">Loading images...</p>
 
-<h3>Horizontal Scroll</h3>
-<div class="scroll-container" id="scrollStrip"></div>
+<header>
+    <div>
+        <h1>Larry <span>Files</span></h1>
+        <p id="status">Loading images...</p>
+    </div>
+    <div class="view-toggle">
+        <button class="view-btn" id="btn-horizontal" onclick="setView('horizontal')" title="Horizontal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="2" y="7" width="6" height="10" rx="1"/>
+                <rect x="9" y="7" width="6" height="10" rx="1"/>
+                <rect x="16" y="7" width="6" height="10" rx="1"/>
+            </svg>
+            Horizontal
+        </button>
+        <button class="view-btn" id="btn-grid" onclick="setView('grid')" title="Grid">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="3" y="3" width="8" height="8" rx="1"/>
+                <rect x="13" y="3" width="8" height="8" rx="1"/>
+                <rect x="3" y="13" width="8" height="8" rx="1"/>
+                <rect x="13" y="13" width="8" height="8" rx="1"/>
+            </svg>
+            Grid
+        </button>
+        <button class="view-btn" id="btn-vertical" onclick="setView('vertical')" title="Vertical">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="4" y="2" width="16" height="6" rx="1"/>
+                <rect x="4" y="9" width="16" height="6" rx="1"/>
+                <rect x="4" y="16" width="16" height="6" rx="1"/>
+            </svg>
+            Vertical
+        </button>
+    </div>
+</header>
 
-<h3>Grid View</h3>
-<div class="grid-container" id="imageGrid"></div>
+<div id="gallery-wrapper" class="grid">
+    <div class="scroll-strip" id="scrollStrip"></div>
+    <div class="grid-strip" id="gridStrip"></div>
+    <div class="vertical-strip" id="verticalStrip"></div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox">
+    <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="">
+</div>
 
 <script>
-    // ✏️ CHANGE THESE to match your GitHub info
     const GITHUB_USER = "WhitehawkGp";
     const GITHUB_REPO = "Larry-Files";
-    const FOLDER_PATH = "Images"; // folder inside your repo
+    const FOLDER_PATH = "Images";
 
     const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FOLDER_PATH}`;
     const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${FOLDER_PATH}/`;
 
-    const scrollStrip = document.getElementById("scrollStrip");
-    const imageGrid = document.getElementById("imageGrid");
-    const status = document.getElementById("status");
-
     const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+    let currentView = 'grid';
+    let loadedImages = [];
+
+    function setView(view) {
+        currentView = view;
+        document.getElementById('gallery-wrapper').className = view;
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + view).classList.add('active');
+    }
+
+    function createCard(src, name, delay) {
+        const card = document.createElement('div');
+        card.className = 'img-card';
+        card.style.animationDelay = `${delay * 60}ms`;
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = name;
+        img.loading = 'lazy';
+
+        const label = document.createElement('div');
+        label.className = 'img-label';
+        label.textContent = name;
+
+        card.appendChild(img);
+        card.appendChild(label);
+        card.onclick = () => openLightbox(src);
+        return card;
+    }
+
+    function openLightbox(src) {
+        document.getElementById('lightbox-img').src = src;
+        document.getElementById('lightbox').classList.add('open');
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+    }
+
+    document.getElementById('lightbox').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeLightbox();
+    });
+
+    // Set default active button
+    document.getElementById('btn-grid').classList.add('active');
 
     fetch(API_URL)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        })
         .then(files => {
             const images = files.filter(file =>
                 imageExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
             );
 
             if (images.length === 0) {
-                status.textContent = "No images found in the folder.";
+                document.getElementById('status').textContent = 'No images found.';
                 return;
             }
 
-            status.textContent = `${images.length} image(s) loaded.`;
+            document.getElementById('status').textContent = `${images.length} files`;
 
-            images.forEach(file => {
+            images.forEach((file, i) => {
                 const src = RAW_BASE + file.name;
 
-                const img1 = document.createElement("img");
-                img1.src = src;
-                img1.alt = file.name;
-                scrollStrip.appendChild(img1);
-
-                const img2 = document.createElement("img");
-                img2.src = src;
-                img2.alt = file.name;
-                imageGrid.appendChild(img2);
+                document.getElementById('scrollStrip').appendChild(createCard(src, file.name, i));
+                document.getElementById('gridStrip').appendChild(createCard(src, file.name, i));
+                document.getElementById('verticalStrip').appendChild(createCard(src, file.name, i));
             });
         })
-        .catch(() => {
-            status.textContent = "Failed to load images. Check your GitHub username, repo, and folder name.";
+        .catch(err => {
+            document.getElementById('status').textContent = `Failed to load — ${err.message}`;
         });
 </script>
-
 </body>
 </html>
